@@ -37,10 +37,27 @@ def clear():
     for w in content.winfo_children():
         w.destroy()
 
-def input_box(label, hide=False):
-    tk.Label(content, text=label, bg=CARD).pack(anchor="w")
+def input_box(label, hide=False, placeholder=""):
+    tk.Label(content, text=label, bg=CARD, fg="black").pack(anchor="w")
     e = tk.Entry(content, width=30, show="*" if hide else "")
     e.pack(ipady=6, pady=8)
+
+    def set_placeholder():
+        if placeholder:
+            e.delete(0, tk.END)
+            e.insert(0, placeholder)
+            e.config(fg="#999999", show="")
+    
+    def clear_placeholder():
+        if e.get() == placeholder:
+            e.delete(0, tk.END)
+            e.config(fg="black")
+            if hide:
+                e.config(show="*")
+    set_placeholder()
+    e.bind("<FocusIn>", lambda _evt: clear_placeholder())
+    e.bind("<FocusOut>", lambda _evt: set_placeholder())
+
     return e
 
 
@@ -75,10 +92,10 @@ def show_signup():
     clear()
     title.config(text="Create Account")
 
-    first_name = input_box("First Name")
-    last_name = input_box("Last Name")
-    username = input_box("Username")
-    password = input_box("Password", hide=True)
+    first_name = input_box("First Name", placeholder="First Name")
+    last_name = input_box("Last Name", placeholder="Last Name")
+    username = input_box("Username", placeholder="Create Username")
+    password = input_box("Password", hide=True, placeholder="Create Password")
 
     def create():
         if not all([first_name.get(), last_name.get(),
@@ -98,7 +115,7 @@ def show_signup():
 
     tk.Button(content, text="Register",
               width=25, height=2,
-              bg=BG, fg="white",
+              bg=BG, fg="black",
               command=create).pack(pady=20)
 
     tk.Button(content, text="Back",
