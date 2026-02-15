@@ -134,6 +134,10 @@ def show_dashboard():
             messagebox.showinfo("Unlocked", "Door unlocked!")
         else:
             messagebox.showerror("Denied", "Face not recognized")
+    
+    def lock():
+        lock_door()
+        messagebox.showinfo("Locked", "Door locked!")
 
     def update():
         if update_face(current_user):
@@ -154,6 +158,11 @@ def show_dashboard():
               width=25, height=2,
               bg=GREEN, fg="black",
               command=unlock).pack(pady=15)
+    
+    tk.Button(content, text="Lock Door",
+              width=25, height=2,
+              bg=GREEN, fg="black",
+              command=lock).pack(pady=15)
 
     tk.Button(content, text="Update Face",
               width=25, height=2,
