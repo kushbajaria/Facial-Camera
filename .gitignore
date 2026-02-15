@@ -1,0 +1,18 @@
+# Face dataset and user data
+faces/
+
+# Python cache and bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment files
+.env
+*.env
+
+# OS files
+.DS_Store
