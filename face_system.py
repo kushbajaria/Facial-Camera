@@ -1,5 +1,6 @@
 import cv2
 import os
+import time
 import numpy as np
 import hashlib
 import shutil
@@ -172,6 +173,10 @@ def verify_face(username):
     if target_label is None:
         return False
 
+    decision = None
+    decision_time = None
+    start_time = time.time()
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -180,18 +185,41 @@ def verify_face(username):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.2, 4)
 
+        matched = False
         for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
             face = gray[y:y+h, x:x+w]
             label, confidence = recognizer.predict(face)
 
             if label == target_label and confidence < 70:
-                unlock_door()
-                cv2.destroyAllWindows()
-                return True
+                matched = True
+
+        cv2.putText(frame, "Press Q to Close",
+                    (1650, 40), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8, (0, 255, 0), 2)
+
+        if decision is None and matched:
+            decision = "granted"
+            decision_time = time.time()
+            unlock_door()
+        elif decision is None and (time.time() - start_time) >= 5:
+            decision = "denied"
+            decision_time = time.time()
+
+        if decision == "granted":
+            cv2.putText(frame, "Face verified - door unlocked", (20, 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+        elif decision == "denied":
+            cv2.putText(frame, "Face not recognized", (20, 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
         cv2.imshow("Verify Face to Unlock", frame)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
+
+        if decision is not None and (time.time() - decision_time) >= 5:
+            cv2.destroyAllWindows()
+            return decision == "granted"
 
     cv2.destroyAllWindows()
     return False
