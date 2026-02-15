@@ -62,7 +62,7 @@ def show_login():
 
     tk.Button(content, text="Login",
               width=25, height=2,
-              bg=BG, fg="white",
+              bg=BG, fg="black",
               command=do_login).pack(pady=20)
 
     tk.Button(content, text="Create Account",
@@ -135,22 +135,22 @@ def show_dashboard():
 
     tk.Button(content, text="Unlock Door",
               width=25, height=2,
-              bg=GREEN, fg="white",
+              bg=GREEN, fg="black",
               command=unlock).pack(pady=15)
 
     tk.Button(content, text="Update Face",
               width=25, height=2,
-              bg=BG, fg="white",
+              bg=BG, fg="black",
               command=update).pack(pady=10)
 
     tk.Button(content, text="Delete Account",
               width=25, height=2,
-              bg=RED, fg="white",
+              bg=RED, fg="black",
               command=delete).pack(pady=10)
 
     tk.Button(content, text="Log Out",
               bg=CARD, fg=BG, bd=0,
-              command=lambda: [lock_door(), show_login()]).pack(pady=15)
+              command=lambda: [lock_door(), show_login()]).pack(pady=20)
 
 
 show_login()
