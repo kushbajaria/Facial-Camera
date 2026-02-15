@@ -153,7 +153,7 @@ def login(username, password):
         return False
 
     with open(pwd_file, "r") as f:
-        saved_hash = f.read()
+        saved_hash = f.read().strip()
 
     return verify_password(password, saved_hash)
 

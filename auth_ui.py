@@ -43,8 +43,7 @@ def input_box(label, hide=False, placeholder=""):
     e.pack(ipady=6, pady=8)
 
     def set_placeholder():
-        if placeholder:
-            e.delete(0, tk.END)
+        if placeholder and not e.get():  # Only set if field is empty
             e.insert(0, placeholder)
             e.config(fg="#999999", show="")
     
@@ -98,17 +97,23 @@ def show_signup():
     password = input_box("Password", hide=True, placeholder="Create Password")
 
     def create():
-        if not all([first_name.get(), last_name.get(),
-                    username.get(), password.get()]):
+        # Get values and strip placeholders
+        fname = first_name.get().strip()
+        lname = last_name.get().strip()
+        uname = username.get().strip()
+        pwd = password.get().strip()
+        
+        # Remove placeholders if still present
+        if fname == "First Name": fname = ""
+        if lname == "Last Name": lname = ""
+        if uname == "Create Username": uname = ""
+        if pwd == "Create Password": pwd = ""
+        
+        if not all([fname, lname, uname, pwd]):
             messagebox.showerror("Error", "All fields required")
             return
 
-        create_account(
-            username.get(),
-            password.get(),
-            first_name.get(),
-            last_name.get()
-        )
+        create_account(uname, pwd, fname, lname)
 
         messagebox.showinfo("Success", "Account created!")
         show_login()
