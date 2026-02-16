@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 from face_system import (
     create_account,
     login,
@@ -7,6 +7,7 @@ from face_system import (
     lock_door,
     get_full_name,
     update_face,
+    add_member,
     delete_account
 )
 
@@ -147,6 +148,24 @@ def show_dashboard():
     def update():
         if update_face(current_user):
             messagebox.showinfo("Updated", "Face updated successfully!")
+    
+    def add_user():
+        member_name = simpledialog.askstring(
+            "Add Member",
+            "Enter member name:"
+        )
+        if not member_name:
+            return
+
+        member_name = member_name.strip()
+        if not member_name:
+            messagebox.showerror("Error", "Member name is required")
+            return
+
+        if add_member(current_user, member_name):
+            messagebox.showinfo("Success", "Member added successfully")
+        else:
+            messagebox.showerror("Error", "Could not add member")
 
     def delete():
         confirm = messagebox.askyesno(
@@ -173,6 +192,11 @@ def show_dashboard():
               width=25, height=2,
               bg=BG, fg="black",
               command=update).pack(pady=10)
+    
+    tk.Button(content, text="Add User",
+              width=25, height=2,
+              bg=GREEN, fg="black",
+              command=add_user).pack(pady=15)
 
     tk.Button(content, text="Delete Account",
               width=25, height=2,

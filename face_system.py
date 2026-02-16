@@ -72,14 +72,7 @@ def create_account(username, password, first_name, last_name):
     return update_face(username)
 
 
-
-def update_face(username):
-    user_dir = os.path.join(DATASET_DIR, username)
-    face_path = os.path.join(user_dir, "face.jpg")
-
-    if not os.path.exists(user_dir):
-        return False
-
+def capture_face(face_path, window_title, instruction):
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -88,14 +81,14 @@ def update_face(username):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.2, 4)
 
-        cv2.putText(frame, "Press ENTER to capture face (Q to cancel)",
+        cv2.putText(frame, instruction,
                     (20, 40), cv2.FONT_HERSHEY_SIMPLEX,
                     0.8, (0, 255, 0), 2)
 
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
-        cv2.imshow("Face Capture", frame)
+        cv2.imshow(window_title, frame)
         key = cv2.waitKey(1) & 0xFF
 
         if key == 13 and len(faces) > 0:
@@ -110,6 +103,42 @@ def update_face(username):
 
     cv2.destroyAllWindows()
     return False
+
+
+
+def update_face(username):
+    user_dir = os.path.join(DATASET_DIR, username)
+    face_path = os.path.join(user_dir, "face.jpg")
+
+    if not os.path.exists(user_dir):
+        return False
+    return capture_face(
+        face_path,
+        "Face Capture",
+        "Press ENTER to capture face (Q to cancel)"
+    )
+
+
+def add_member(account_username, member_name):
+    account_dir = os.path.join(DATASET_DIR, account_username)
+    if not os.path.exists(account_dir):
+        return False
+
+    members_dir = os.path.join(account_dir, "members")
+    os.makedirs(members_dir, exist_ok=True)
+
+    member_dir = os.path.join(members_dir, member_name)
+    if os.path.exists(member_dir):
+        return False
+
+    os.makedirs(member_dir, exist_ok=True)
+    face_path = os.path.join(member_dir, "face.jpg")
+
+    return capture_face(
+        face_path,
+        "Add Member Face",
+        "Press ENTER to capture member face (Q to cancel)"
+    )
 
 
 
@@ -129,16 +158,41 @@ def train_model():
     label_map = {}
     label = 0
 
-    for name in os.listdir(DATASET_DIR):
-        img_path = os.path.join(DATASET_DIR, name, "face.jpg")
-        if not os.path.exists(img_path):
+    for account_name in os.listdir(DATASET_DIR):
+        account_dir = os.path.join(DATASET_DIR, account_name)
+        if not os.path.isdir(account_dir):
             continue
 
-        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-        faces.append(img)
-        labels.append(label)
-        label_map[label] = name
-        label += 1
+        img_path = os.path.join(account_dir, "face.jpg")
+        if os.path.exists(img_path):
+            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            if img is not None:
+                faces.append(img)
+                labels.append(label)
+                label_map[label] = account_name
+                label += 1
+
+        members_dir = os.path.join(account_dir, "members")
+        if not os.path.isdir(members_dir):
+            continue
+
+        for member_name in os.listdir(members_dir):
+            member_dir = os.path.join(members_dir, member_name)
+            if not os.path.isdir(member_dir):
+                continue
+
+            member_face = os.path.join(member_dir, "face.jpg")
+            if not os.path.exists(member_face):
+                continue
+
+            img = cv2.imread(member_face, cv2.IMREAD_GRAYSCALE)
+            if img is None:
+                continue
+
+            faces.append(img)
+            labels.append(label)
+            label_map[label] = account_name
+            label += 1
 
     if faces:
         recognizer.train(faces, np.array(labels))
@@ -165,12 +219,12 @@ def verify_face(username):
     if not label_map:
         return False
 
-    target_label = None
-    for k, v in label_map.items():
-        if v == username:
-            target_label = k
+    target_labels = {
+        label for label, account_name in label_map.items()
+        if account_name == username
+    }
 
-    if target_label is None:
+    if not target_labels:
         return False
 
     decision = None
@@ -191,7 +245,7 @@ def verify_face(username):
             face = gray[y:y+h, x:x+w]
             label, confidence = recognizer.predict(face)
 
-            if label == target_label and confidence < 70:
+            if label in target_labels and confidence < 70:
                 matched = True
 
         cv2.putText(frame, "Press Q to Close",
