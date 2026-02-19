@@ -60,11 +60,12 @@ Early-stage concept and design. The README will evolve alongside implementation 
 
 ## Want to take it out for a spin? Run these quick commands to try it out for yourself!
 Make sure to clone the repo first, then type in
-1. .venv/bin/activate
-2. pip install --upgrade pip
-3. python -m pip install -U pip
-4. python -m pip install opencv-contrib-python numpy
-5. python auth_ui.py
+1. python3 -m venv .venv
+2. .venv/bin/activate
+3. pip install --upgrade pip
+4. python -m pip install -U pip
+5. python -m pip install opencv-contrib-python numpy
+6. python auth_ui.py
 
 ## Disclaimer
 Facial recognition systems can have false positives/negatives. This project should be used as an assistive security layer, not the sole method of access control. Always include a secure fallback entry method.
