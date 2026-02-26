@@ -24,11 +24,11 @@ logger = SimpleLogger("visitor_log.csv")
 # ------------------ ROOT WINDOW ------------------
 root = tk.Tk()
 root.title("Smart Door")
-root.geometry("900x600")
+root.geometry("950x800")
 root.configure(bg=BG)
 root.resizable(False, False)
 
-card = tk.Frame(root, bg=CARD, width=400, height=550)
+card = tk.Frame(root, bg=CARD, width=650, height=650)
 card.place(relx=0.5, rely=0.5, anchor="center")
 card.pack_propagate(False)
 
@@ -47,7 +47,14 @@ def clear():
 
 def input_box(label, hide=False, placeholder=""):
     tk.Label(content, text=label, bg=CARD, fg="black").pack(anchor="w")
-    e = tk.Entry(content, width=30, show="*" if hide else "")
+    e = tk.Entry(
+        content,
+        width=30,
+        show="*" if hide else "",
+        fg="white",
+        bg="#2E2E2E",
+        insertbackground="white"
+    )
     e.pack(ipady=6, pady=8)
 
     def set_placeholder(): # Only set if field is empty
@@ -58,7 +65,7 @@ def input_box(label, hide=False, placeholder=""):
     def clear_placeholder():
         if e.get() == placeholder:
             e.delete(0, tk.END)
-            e.config(fg="black")
+            e.config(fg="white")
             if hide:
                 e.config(show="*")
 
